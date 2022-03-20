@@ -1,7 +1,8 @@
-// ignore_for_file: avoid_print
-
+import 'package:chat/helpers/mostrat_alerta.dart';
+import 'package:chat/services/auth_service.dart';
 import 'package:chat/widgets/boton_azul.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../widgets/custum_input.dart';
 import '../widgets/labels.dart';
@@ -56,6 +57,8 @@ class _FormState extends State<_Form> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+
     return Container(
       margin: EdgeInsets.only(top: 40),
       padding: EdgeInsets.symmetric(horizontal: 50),
@@ -76,7 +79,21 @@ class _FormState extends State<_Form> {
           ),
           BotonAzul(
             text: 'Ingrese',
-            onPressed: () => {print('object')},
+            onPressed: authService.autenticando
+                ? null
+                : () async {
+                    FocusScope.of(context).unfocus();
+                    final loginPass = await authService.login(
+                        emailController.text.trim(),
+                        passwordController.text.trim());
+
+                    if (loginPass) {
+                      Navigator.pushReplacementNamed(context, 'usuarios');
+                    } else {
+                      mostarAlerta(context, 'Login incorrecto',
+                          'Revisa correo y contraseña');
+                    }
+                  },
           )
         ],
       ),
